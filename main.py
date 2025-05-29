@@ -59,7 +59,7 @@ api_url = "http://master-api-v3.vercel.app/"
 api_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzkxOTMzNDE5NSIsInRnX3VzZXJuYW1lIjoi4p61IFtvZmZsaW5lXSIsImlhdCI6MTczODY5MjA3N30.SXzZ1MZcvMp5sGESj0hBKSghhxJ3k1GTWoBUbivUe1I"
 token_cp ='eyJjb3Vyc2VJZCI6IjQ1NjY4NyIsInR1dG9ySWQiOm51bGwsIm9yZ0lkIjo0ODA2MTksImNhdGVnb3J5SWQiOm51bGx9r'
 adda_token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJkcGthNTQ3MEBnbWFpbC5jb20iLCJhdWQiOiIxNzg2OTYwNSIsImlhdCI6MTc0NDk0NDQ2NCwiaXNzIjoiYWRkYTI0Ny5jb20iLCJuYW1lIjoiZHBrYSIsImVtYWlsIjoiZHBrYTU0NzBAZ21haWwuY29tIiwicGhvbmUiOiI3MzUyNDA0MTc2IiwidXNlcklkIjoiYWRkYS52MS41NzMyNmRmODVkZDkxZDRiNDkxN2FiZDExN2IwN2ZjOCIsImxvZ2luQXBpVmVyc2lvbiI6MX0.0QOuYFMkCEdVmwMVIPeETa6Kxr70zEslWOIAfC_ylhbku76nDcaBoNVvqN4HivWNwlyT0jkUKjWxZ8AbdorMLg"
-photologo = 'https://tinypic.host/images/2025/02/07/DeWatermark.ai_1738952933236-1.png' #https://envs.sh/GV0.jpg
+photologo = 'https://tinypic.host/images/2025/05/29/Medusaxd-Bot_20250529_184235_0000.png' #https://envs.sh/GV0.jpg
 photoyt = 'https://tinypic.host/images/2025/03/18/YouTube-Logo.wine.png' #https://envs.sh/GVi.jpg
 photocp = 'https://tinypic.host/images/2025/03/28/IMG_20250328_133126.jpg'
 photozip = 'https://envs.sh/cD_.jpg'
@@ -70,12 +70,12 @@ async def show_random_emojis(message):
     return emoji_message
 
 # Inline keyboard for start command
-BUTTONSCONTACT = InlineKeyboardMarkup([[InlineKeyboardButton(text="📞 Contact", url="https://t.me/saini_contact_bot")]])
+BUTTONSCONTACT = InlineKeyboardMarkup([[InlineKeyboardButton(text="📞 Contact", url="https://t.me/medusaXD")]])
 keyboard = InlineKeyboardMarkup(
     [
         [
-            InlineKeyboardButton(text="🛠️ Help", url="https://t.me/+3k-1zcJxINYwNGZl"),
-            InlineKeyboardButton(text="🛠️ Repo", url="https://github.com/cyberseller999/saini-txt-direct"),
+            InlineKeyboardButton(text="🛠️ Help", callback_data="help"),
+            InlineKeyboardButton(text="💬 Contact", url="https://t.me/medusaXD"),
         ],
     ]
 )
@@ -87,13 +87,32 @@ image_urls = [
     # Add more image URLs as needed
 ]
 
+# Check if user is authorized
+def is_authorized(user_id):
+    return user_id in AUTH_USERS
+
 @bot.on_message(filters.command("start") & filters.private)
 async def start_command(client: Client, message: Message):
     # Get user's first name
     first_name = message.from_user.first_name
+    user_id = message.from_user.id
 
     # Create the welcome message
     welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+"""
+
+    # Check if user is authorized
+    if not is_authorized(user_id):
+        unauthorized_text = f"{welcome_text}\n\nYou are not authorized to use this command. Contact my Owner: {CREDIT}"
+        await message.reply_text(unauthorized_text, reply_markup=BUTTONSCONTACT)
+        return
+
+    # Full welcome message for authorized users
+    auth_welcome_text = f"""
 <b>👋 Hello {first_name}!</b>
 
 Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
@@ -103,8 +122,8 @@ Welcome to the Text To Video Extractor Bot! I can help you extract and process v
 • /addauth [user_id] - Add authorized user (owner only)
 • /remauth [user_id] - Remove authorized user (owner only)
 • /users - List all authorized users (owner only)
-• /addchnl [channel_id] - Add a channel (-100...)
-• /remchnl [channel_id] - Remove a channel
+• /add_channel [channel_id] - Add a channel (-100...)
+• /remove_channel [channel_id] - Remove a channel
 • /channels - List all authorized channels
 • /cookies - Upload YouTube cookies file
 • /help - Show this help message
@@ -116,12 +135,28 @@ Welcome to the Text To Video Extractor Bot! I can help you extract and process v
     await client.send_photo(
         chat_id=message.chat.id,
         photo=photologo,
-        caption=welcome_text,
+        caption=auth_welcome_text,
         reply_markup=keyboard
     )
 
 @bot.on_message(filters.command("help") & filters.private)
 async def help_command(client: Client, message: Message):
+    user_id = message.from_user.id
+
+    # Check if user is authorized
+    if not is_authorized(user_id):
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
+        return
+
     help_text = f"""
 <b>📚 Bot Commands Guide</b>
 
@@ -131,8 +166,8 @@ async def help_command(client: Client, message: Message):
 • /users - List all authorized users (owner only)
 
 <b>📢 Channel Management:</b>
-• /addchnl [channel_id] - Add a channel (must start with -100)
-• /remchnl [channel_id] - Remove a channel
+• /add_channel [channel_id] - Add a channel (must start with -100)
+• /remove_channel [channel_id] - Remove a channel
 • /channels - List all authorized channels
 
 <b>🔧 Other Functions:</b>
@@ -141,7 +176,7 @@ async def help_command(client: Client, message: Message):
 
 <b>How to use:</b>
 1. Add the bot to your desired channel
-2. Use /addchnl to authorize the channel
+2. Use /add_channel to authorize the channel
 3. Send video links to extract and process videos
 
 <b>Powered by {CREDIT}</b>
@@ -151,7 +186,16 @@ async def help_command(client: Client, message: Message):
 @bot.on_message(filters.command("addauth") & filters.private)
 async def add_auth_user(client: Client, message: Message):
     if message.chat.id != OWNER:
-        return await message.reply_text("You are not authorized to use this command.")
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
 
     try:
         new_user_id = int(message.command[1])
@@ -168,7 +212,16 @@ async def add_auth_user(client: Client, message: Message):
 @bot.on_message(filters.command("remauth") & filters.private)
 async def remove_auth_user(client: Client, message: Message):
     if message.chat.id != OWNER:
-        return await message.reply_text("You are not authorized to use this command.")
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
 
     try:
         user_id_to_remove = int(message.command[1])
@@ -185,15 +238,33 @@ async def remove_auth_user(client: Client, message: Message):
 @bot.on_message(filters.command("users") & filters.private)
 async def list_auth_users(client: Client, message: Message):
     if message.chat.id != OWNER:
-        return await message.reply_text("You are not authorized to use this command.")
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
 
     user_list = '\n'.join(map(str, AUTH_USERS))
     await message.reply_text(f"<blockquote>Authorized Users:</blockquote>\n{user_list}")
 
-@bot.on_message(filters.command("addchnl") & filters.private)
+@bot.on_message(filters.command("add_channel") & filters.private)
 async def add_channel(client: Client, message: Message):
     if message.from_user.id not in AUTH_USERS:
-        return await message.reply_text("You are not authorized to use this command.")
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
 
     try:
         new_channel_id = int(message.command[1])
@@ -213,8 +284,20 @@ async def add_channel(client: Client, message: Message):
     except (IndexError, ValueError):
         await message.reply_text("Please provide a valid channel ID.")
 
-@bot.on_message(filters.command("remchnl") & filters.private)
+@bot.on_message(filters.command("remove_channel") & filters.private)
 async def remove_channel(client: Client, message: Message):
+    if message.from_user.id not in AUTH_USERS:
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
+
     try:
         channel_id_to_remove = int(message.command[1])
 
@@ -239,8 +322,17 @@ async def remove_channel(client: Client, message: Message):
 
 @bot.on_message(filters.command("channels") & filters.private)
 async def list_channels(client: Client, message: Message):
-    if message.chat.id != OWNER:
-        return await message.reply_text("You are not authorized to use this command.")
+    if message.chat.id not in AUTH_USERS:
+        first_name = message.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await message.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
 
     if not CHANNELS_LIST:
         await message.reply_text("No channels have been added yet.")
@@ -250,6 +342,18 @@ async def list_channels(client: Client, message: Message):
 
 @bot.on_message(filters.command("cookies") & filters.private)
 async def cookies_handler(client: Client, m: Message):
+    if m.from_user.id not in AUTH_USERS:
+        first_name = m.from_user.first_name
+        welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+<b>Powered by {CREDIT}</b>
+
+You are not authorized to use this command. Contact my Owner: {CREDIT}
+"""
+        return await m.reply_text(welcome_text, reply_markup=BUTTONSCONTACT)
+
     await m.reply_text(
         "Please upload the cookies file (.txt format).",
         quote=True
@@ -280,6 +384,15 @@ async def cookies_handler(client: Client, m: Message):
 
     except Exception as e:
         await m.reply_text(f"An error occurred: {str(e)}")
+
+# Support for older command names (for backward compatibility)
+@bot.on_message(filters.command("addchnl") & filters.private)
+async def add_channel_old(client: Client, message: Message):
+    await add_channel(client, message)
+
+@bot.on_message(filters.command("remchnl") & filters.private)
+async def remove_channel_old(client: Client, message: Message):
+    await remove_channel(client, message)
 
 # Add more command handlers and functionality as needed
 
