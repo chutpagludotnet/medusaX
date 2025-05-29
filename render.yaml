@@ -2,7 +2,7 @@ services:
   - type: worker
     name: saini-txt-bot
     env: python
-    plan: free
+    plan: pro
     buildCommand: pip install --no-cache-dir --upgrade -r requirements.txt && python3 -m pip install -U yt-dlp
     startCommand: python3 main.py
     envVars:
