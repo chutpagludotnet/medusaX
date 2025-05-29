@@ -1,11 +1,14 @@
 services:
-  - type: worker
-    name: saini-txt-bot
-    env: python
+  - type: web
+    name: medusaX 
     plan: pro
-    buildCommand: pip install --no-cache-dir --upgrade -r requirements.txt && python3 -m pip install -U yt-dlp
-    startCommand: python3 main.py
+    env: docker
+    dockerfilePath: Dockerfile
+    repo: https://github.com/chutpagludotnet/Well
+    branch: main
+    autoDeploy: false
     envVars:
+      - envVars:
       - key: API_ID
         sync: false
       - key: API_HASH
@@ -14,4 +17,7 @@ services:
         sync: false
       - key: OWNER
         sync: false
-    autoDeploy: true
+      #- key: WEBHOOK
+        #sync: false
+      - key: PORT
+        value: 8000  # Default port value, update if needed
