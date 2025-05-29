@@ -1,0 +1,17 @@
+services:
+  - type: worker
+    name: saini-txt-bot
+    env: python
+    plan: free
+    buildCommand: pip install --no-cache-dir --upgrade -r requirements.txt && python3 -m pip install -U yt-dlp
+    startCommand: python3 main.py
+    envVars:
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: OWNER
+        sync: false
+    autoDeploy: true
