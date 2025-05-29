@@ -8,7 +8,6 @@ services:
     branch: main
     autoDeploy: false
     envVars:
-      - envVars:
       - key: API_ID
         sync: false
       - key: API_HASH
