@@ -87,6 +87,67 @@ image_urls = [
     # Add more image URLs as needed
 ]
 
+@bot.on_message(filters.command("start") & filters.private)
+async def start_command(client: Client, message: Message):
+    # Get user's first name
+    first_name = message.from_user.first_name
+
+    # Create the welcome message
+    welcome_text = f"""
+<b>👋 Hello {first_name}!</b>
+
+Welcome to the Text To Video Extractor Bot! I can help you extract and process videos from various sources.
+
+<b>🤖 Bot Commands:</b>
+• Send me a video URL or text link to extract the video
+• /addauth [user_id] - Add authorized user (owner only)
+• /remauth [user_id] - Remove authorized user (owner only)
+• /users - List all authorized users (owner only)
+• /addchnl [channel_id] - Add a channel (-100...)
+• /remchnl [channel_id] - Remove a channel
+• /channels - List all authorized channels
+• /cookies - Upload YouTube cookies file
+• /help - Show this help message
+
+<b>Powered by {CREDIT}</b>
+"""
+
+    # Send the welcome message with the logo image
+    await client.send_photo(
+        chat_id=message.chat.id,
+        photo=photologo,
+        caption=welcome_text,
+        reply_markup=keyboard
+    )
+
+@bot.on_message(filters.command("help") & filters.private)
+async def help_command(client: Client, message: Message):
+    help_text = f"""
+<b>📚 Bot Commands Guide</b>
+
+<b>👤 User Management:</b>
+• /addauth [user_id] - Add an authorized user (owner only)
+• /remauth [user_id] - Remove an authorized user (owner only)
+• /users - List all authorized users (owner only)
+
+<b>📢 Channel Management:</b>
+• /addchnl [channel_id] - Add a channel (must start with -100)
+• /remchnl [channel_id] - Remove a channel
+• /channels - List all authorized channels
+
+<b>🔧 Other Functions:</b>
+• /cookies - Upload YouTube cookies file for accessing restricted content
+• Send any video URL or text link to extract the video
+
+<b>How to use:</b>
+1. Add the bot to your desired channel
+2. Use /addchnl to authorize the channel
+3. Send video links to extract and process videos
+
+<b>Powered by {CREDIT}</b>
+"""
+    await message.reply_text(help_text, reply_markup=keyboard)
+
 @bot.on_message(filters.command("addauth") & filters.private)
 async def add_auth_user(client: Client, message: Message):
     if message.chat.id != OWNER:
@@ -206,10 +267,16 @@ async def cookies_handler(client: Client, m: Message):
         # Download the cookies file
         downloaded_path = await input_message.download()
 
-        # Read the content of the uploaded file
-        with open(downloaded_path, "r") as uploaded_file:
-            # Add your implementation here
-            pass
+        # Save the cookies file
+        with open(cookies_file_path, "wb") as cookies_file:
+            with open(downloaded_path, "rb") as uploaded_file:
+                cookies_file.write(uploaded_file.read())
+
+        await m.reply_text("✅ YouTube cookies file has been successfully updated!")
+
+        # Clean up the downloaded file
+        if os.path.exists(downloaded_path):
+            os.remove(downloaded_path)
 
     except Exception as e:
         await m.reply_text(f"An error occurred: {str(e)}")
